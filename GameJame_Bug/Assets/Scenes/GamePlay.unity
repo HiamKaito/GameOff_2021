@@ -393,7 +393,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   lenght: 121
   ParentPanel: {fileID: 471906645}
-  prefab: {fileID: 0}
+  prefab: {fileID: 3582842686071903024, guid: 620435077f001de47a6aa954f948c4c2, type: 3}
 --- !u!114 &471906650
 MonoBehaviour:
   m_ObjectHideFlags: 0

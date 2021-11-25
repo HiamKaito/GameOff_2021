@@ -37,7 +37,6 @@
   </PropertyGroup>
   <ItemGroup>
      <Compile Include="Assets\Scripts\TableArray.cs" />
-     <Compile Include="Assets\Scripts\ImageEvent.cs" />
     <Reference Include="UnityEngine">
         <HintPath>T:/Unity Editor/2020.3.16f1/Editor/Data/Managed/UnityEngine/UnityEngine.dll</HintPath>
     </Reference>
