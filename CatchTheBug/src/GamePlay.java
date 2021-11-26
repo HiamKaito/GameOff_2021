@@ -2,8 +2,6 @@
 import java.awt.Color;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.util.Random;
 import javax.swing.*;
 
@@ -42,6 +40,7 @@ public class GamePlay extends javax.swing.JFrame {
         listLabel = new JLabel[lenght][lenght];
 
         lblBug = new JLabel();
+        lblEnd = new JLabel();
 
         createList();
 
@@ -57,14 +56,21 @@ public class GamePlay extends javax.swing.JFrame {
     public boolean[][] list;
     public JLabel[][] listLabel;
     public JLabel lblBug;
+    public JLabel lblEnd;
     public int randomTrap = 50;
 
     public void init() {
-        lblBug.setBounds(310, 310, 50, 50);
+        lblBug.setBounds(Memory.posX, Memory.posY, 50, 50);
         lblBug.setBackground(Color.RED);
         lblBug.setOpaque(true);
 
         jPanel1.add(lblBug);
+
+        lblEnd.setBounds(10, 10, 50, 50);
+        lblEnd.setBackground(Color.YELLOW);
+        lblEnd.setOpaque(true);
+
+        jPanel1.add(lblEnd);
 
         int posX = 10, posY = 10;
         for (int i = 0; i < lenght; i++) {
@@ -86,11 +92,6 @@ public class GamePlay extends javax.swing.JFrame {
                     lbl.setOpaque(true);
                     lbl.setName(i + ";" + j + ";" + posX + ";" + posY + ";enable");
 
-//                    lbl.addMouseListener(new MouseAdapter() {
-//                        public void mouseClicked(MouseEvent evt) {
-//                            eventOnClick_Label(lbl);
-//                        }
-//                    });
                     listLabel[i][j] = lbl;
                     jPanel1.add(lbl);
                     posX += 60;
@@ -99,18 +100,6 @@ public class GamePlay extends javax.swing.JFrame {
             posX = 10;
             posY += 60;
         }
-    }
-
-    public void eventOnClick_Label(JLabel lbl) {
-        String[] arr = lbl.getName().split(";");
-
-        list[Integer.parseInt(arr[0])][Integer.parseInt(arr[1])] = false;
-        listLabel[Integer.parseInt(arr[0])][Integer.parseInt(arr[1])].setVisible(false);
-
-        lbl.setName(arr[0] + ";" + arr[1] + ";" + arr[2] + ";" + arr[3] + ";disable");
-
-        System.out.println(lbl.getName());
-        System.out.println(lbl.getX() + " " + lbl.getY());
     }
 
     public void randomTrap() {
@@ -122,8 +111,6 @@ public class GamePlay extends javax.swing.JFrame {
             int a = rand.nextInt((10 - 0) + 1) + 0;
             int b = rand.nextInt((10 - 0) + 1) + 0;
 
-            //!(a == 5 && b == 5)
-            //(a != 5 && b != 5)
             if (list[a][b] && !(a == 5 && b == 5)) {
                 list[a][b] = false;
                 i++;
@@ -141,8 +128,6 @@ public class GamePlay extends javax.swing.JFrame {
     }
 
     public void BugMoving(String key) {
-//        lblBug.setBounds(420, 310, 50, 50);
-
 //        Get pos
         int posX = 0, posY = 0;
         int geti = 0, getj = 0;
@@ -168,29 +153,48 @@ public class GamePlay extends javax.swing.JFrame {
             }
         }
 
+        if (posX == 10) {
+            JOptionPane.showMessageDialog(this, "You win");
+
+            Memory.posX = 610;
+            Memory.posY = 610;
+
+            GamePlay a = new GamePlay();
+            a.setVisible(true);
+            this.setVisible(false);
+        }
+
         switch (key) {
             case "LEFT":
                 if (isGoable(geti, getj - 1)) {
                     lblBug.setBounds(posX - 60, posY, 50, 50);
                     disable(geti, getj);
+                    Memory.posX = posX - 60;
+                    Memory.posY = posY;
                 }
                 break;
             case "RIGHT":
                 if (isGoable(geti, getj + 1)) {
                     lblBug.setBounds(posX + 60, posY, 50, 50);
                     disable(geti, getj);
+                    Memory.posX = posX + 60;
+                    Memory.posY = posY;
                 }
                 break;
             case "DOWN":
                 if (isGoable(geti + 1, getj)) {
                     lblBug.setBounds(posX, posY + 60, 50, 50);
                     disable(geti, getj);
+                    Memory.posX = posX;
+                    Memory.posY = posY + 60;
                 }
                 break;
             case "UP":
                 if (isGoable(geti - 1, getj)) {
                     lblBug.setBounds(posX, posY - 60, 50, 50);
                     disable(geti, getj);
+                    Memory.posX = posX;
+                    Memory.posY = posY - 60;
                 }
                 break;
             case "SPACE":
@@ -199,7 +203,25 @@ public class GamePlay extends javax.swing.JFrame {
                 this.setVisible(false);
                 break;
         }
+//        count trap
+        int count = 0;
 
+        for (int i = 0; i < lenght; i++) {
+            for (int j = 0; j < lenght; j++) {
+                if (list[i][j]) {
+                    count++;
+                }
+            }
+        }
+
+        int del = 0;
+        if (count - 10 <= 0) {
+            del += 1;
+        } else {
+            del += 10;
+        }
+
+//        random trap move
         int i = 0;
         int a, b;
         Random rand = new Random();
@@ -211,12 +233,12 @@ public class GamePlay extends javax.swing.JFrame {
             if (list[a][b]) {
                 if (!(a == geti && a == getj)) {
                     list[a][b] = false;
+                    disable(a, b);
                     i++;
                 }
             }
 
-        } while (i == 0);
-        disable(a, b);
+        } while (i < del);
     }
 
     public boolean isGoable(int i, int j) {
@@ -228,22 +250,24 @@ public class GamePlay extends javax.swing.JFrame {
                 return true;
             }
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "You win");
-            GamePlay a = new GamePlay();
-            a.setVisible(true);
-            this.setVisible(false);
+//            JOptionPane.showMessageDialog(this, "You win");
+//            GamePlay a = new GamePlay();
+//            a.setVisible(true);
+//            this.setVisible(false);
             return false;
         }
         return false;
     }
 
     public void disable(int i, int j) {
+try {
         String[] arr = listLabel[i][j].getName().split(";");
 
         list[Integer.parseInt(arr[0])][Integer.parseInt(arr[1])] = false;
         listLabel[Integer.parseInt(arr[0])][Integer.parseInt(arr[1])].setVisible(false);
 
         listLabel[i][j].setName(arr[0] + ";" + arr[1] + ";" + arr[2] + ";" + arr[3] + ";disable");
+} catch (Exception e) {}
     }
 
     @SuppressWarnings("unchecked")
